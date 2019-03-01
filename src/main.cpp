@@ -72,7 +72,7 @@ int main() {
 
           if (!steering_pid.is_initialized)
           {
-            steering_pid.Init(0.1, 0.002, 10.0, cte);
+            steering_pid.Init(0.06, 0.0015, 3.5, cte);
             steer_value = 0.0;
           }
           else
@@ -95,6 +95,7 @@ int main() {
             throttle_value = speed_pid.TotalError();
             throttle_value = throttle_value > 1 ? 1 : throttle_value;
             throttle_value = throttle_value < 0 ? 0 : throttle_value;
+            throttle_value = 0.6;
           }
 
           // DEBUG
