@@ -39,7 +39,5 @@ double PID::TotalError() {
    * TODO: Calculate and return the total error
    */
   double total_error = - p_error - i_error - d_error;
-  total_error = total_error > 1 ? 1 : total_error;
-  total_error = total_error < -1 ? -1 : total_error;
   return total_error;  // TODO: Add your total error calc here!
 }
