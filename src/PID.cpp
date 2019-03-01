@@ -29,6 +29,7 @@ void PID::UpdateError(double cte) {
    */
   p_error = Kp * cte;
   d_error = Kd * (cte - cte_prev);
+  cte_prev = cte;
   cte_i += cte;
   i_error = Ki * cte_i;
 }
@@ -37,5 +38,8 @@ double PID::TotalError() {
   /**
    * TODO: Calculate and return the total error
    */
-  return (- p_error - i_error - d_error);  // TODO: Add your total error calc here!
+  double total_error = - p_error - i_error - d_error;
+  total_error = total_error > 1 ? 1 : total_error;
+  total_error = total_error < -1 ? -1 : total_error;
+  return total_error;  // TODO: Add your total error calc here!
 }
