@@ -85,7 +85,7 @@ int main() {
 
           if (!speed_pid.is_initialized)
           {
-            speed_pid.Init(20.0, 0.2, 50.0, target_speed);
+            speed_pid.Init(3.0, 0.0002, 10.0, target_speed);
             throttle_value = 0.0;
           }
           else
@@ -95,7 +95,6 @@ int main() {
             throttle_value = speed_pid.TotalError();
             throttle_value = throttle_value > 1 ? 1 : throttle_value;
             throttle_value = throttle_value < 0 ? 0 : throttle_value;
-            throttle_value = 0.6;
           }
 
           // DEBUG
