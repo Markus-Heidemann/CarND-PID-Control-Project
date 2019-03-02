@@ -72,7 +72,8 @@ int main() {
 
           if (!steering_pid.is_initialized)
           {
-            steering_pid.Init(0.06, 0.0015, 3.5, cte);
+            steering_pid.Init(0.06, 0.001, 3.5, cte);
+            // 0.06, 0.001, 3.5
             steer_value = 0.0;
           }
           else
