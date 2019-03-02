@@ -35,11 +35,13 @@ int main() {
 
   PID steering_pid;
   PID speed_pid;
+
+  double total_cte;
   /**
    * TODO: Initialize the pid variable.
    */
 
-  h.onMessage([&steering_pid, &speed_pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&steering_pid, &speed_pid, &total_cte](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -70,10 +72,12 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
 
+          /**
+           *  Steering PID
+           */
           if (!steering_pid.is_initialized)
           {
             steering_pid.Init(0.06, 0.001, 3.5, cte);
-            // 0.06, 0.001, 3.5
             steer_value = 0.0;
           }
           else
@@ -84,6 +88,9 @@ int main() {
             steer_value = steer_value < -1 ? -1 : steer_value;
           }
 
+          /**
+           * Speed PID
+           */
           if (!speed_pid.is_initialized)
           {
             speed_pid.Init(3.0, 0.0002, 10.0, target_speed);
@@ -98,15 +105,14 @@ int main() {
             throttle_value = throttle_value < 0 ? 0 : throttle_value;
           }
 
-          // DEBUG
-          std::cout << "CTE: " << speed_cte << "\tSteering Value: " << steer_value
-                    << "\tThrottle Value: " << throttle_value << std::endl;
+          // Calculate and print the cummulated cross track error.
+          total_cte += cte * cte;
+          std::cout << "total_cte: " << total_cte << "\n";
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {

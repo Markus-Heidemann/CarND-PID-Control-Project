@@ -61,7 +61,7 @@ for instructions and the project rubric.
 
 ## Reflection
 
-### Effect of PID Controller components
+### Effects of the PID Controller components
 
 #### Proportional Controller
 
@@ -72,11 +72,81 @@ drives the car off the street.
 
 #### Differential Controller
 
-The differential controller is not able to keep the car within the track. The controller doesn't react quick and strong
-enough to the changing cross track error.
+The differential controller is not able to keep the car within the track. The controller doesn't react quickly and
+strongly enough to the changing cross track error.
 
 ![Only using a differential controller](./media/D_controller.gif)
 
 #### PD Controller
 
-The combination of the P and the D controller is allows to steer the car within the track. There are
+The combination of the P and the D controller allows to steer the car within the track. Nevertheless there remains a
+constant offset from the track center, especially in curves. In sharper curves this leads the vehicle to come too close
+to the track's edge.
+
+![PD controller results in constant deviation from track center.](./media/PD_controller_1.gif)
+![In sharp curves the PD controller lets the vehicle come too close to the track edge.](./media/PD_controller_2.gif)
+
+#### PID Controller
+
+Adding the integral component to the controller has benefits with regards to driving in curves. The controller
+steers the vehicle back to the track center, if the cross track error cummulates over time. This behaviour can't be
+achieved by the PD controller.
+
+![The PID controller steers the vehicle back to the track center in curves.](./media/PID_controller_2.gif)
+
+In sharp curves the effect of the integral component is especially visible, when the controller pulls the vehicle back
+to the track center, after the cross track error got to big.
+
+![Effect of the intergral component in sharp curves and 'overshooting'](./media/PID_controller_1.gif)
+
+However the integral component leads to 'overshooting', i.e. the controller will overcompensate the cross track error
+and this leads to additional oscillation. The overall driving performance is still improved and the
+vehicle is kept in the center of the track more reliable.
+
+### Hyperparameter tuning
+
+The P-, I- and D-coefficients were chosen by using a sort of 'manual twiddle'. For the beginning only the proportianal
+component was active.
+
+The P paramter was then tuned, so that the controller would keep the vehicle on the track as long as possible.
+However the controller always started to oscillate and drove the vehicle over the track edge.
+In case the P paramter was chosen to large, the controller would begin to build up the oscillation very quickly. If the
+paramter was to small, the controller wouldn't be able to steer strong enough to drive the vehicle around curves.
+The P component alone was not able to drive the vehicle around the track at all.
+
+Adding the D component could improve this behavior and reduce the oscillation. However choosing the D paramter to big,
+would result in even stronger oscillation and worse performace. If the parameter is chosen too small, the differential
+component can't compensate the oscillation of the proportional component.
+The PD controller was able to drive the vehicle around the track without crossing the edges.
+The cummulated cross track error for one 'reference round' (driving one round
+from the spawning point of the vehicle and then additionally to the beginning of the bridge) was 5889.
+
+The I component could improve the result even further. With a properly tuned I paramter (too big would lead to strong
+oscillation, too small wouldn't allow the I component to correct offsets effectively), the cummulated cross track error
+for one reference round could be reduced to 2617.
+
+#### Reducing overcompensation
+
+In order to reduce the amount of overshooting, that was introduced by adding the I component, the following experiment
+was performed: Whenever the cross track error changes its sign, i.e. the vehicle crosses the center of the track, the
+cummulated integral cross track error is set to 0 immediately (see line 23 in PID.cpp). This should reduce the influence
+of the integral component faster, after the vehicle has been steered back to the track center and thus reduce the amount
+of overcompensation. This addition reduced the cummulated cross track error to 2556.
+
+The following paramters were chosen in the end:
+
+* Kp: 0.06
+* Ki: 0.001
+* Kd: 3.5
+
+### Controling the speed
+
+To control the speed, another PID controller was used. The target speed was set to 60 mph. The following paramters were
+chosen:
+
+* Kp: 3.0
+* Ki: 0.0002
+* Kd: 10.0
+
+Not much effort was put into tuning these paramters, because the controller only needs to accelerate the vehicle at the
+beginning and then does not face any disturbances.
